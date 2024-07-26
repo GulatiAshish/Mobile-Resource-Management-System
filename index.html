@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resource Selection Dashboard</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      padding: 20px;
+    }
+    .resource-detail {
+      margin-top: 20px;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="mb-4">Mobile Resource Selection Dashboard</h1>
+    <div class="form-group">
+      <h4><label for="resourceType">Resource Type:</label></h4>
+      <select class="form-control" id="resourceType" name="resourceType" onchange="handleResourceTypeChange()">
+        <option value="">Select Resource Type</option>
+        <option value="COMP">Compressor</option>
+        <option value="DMP">Dumper</option>
+        <option value="DSLG">Diesel Generator</option>
+        <option value="FLTT">Flat Trailer</option>
+        <option value="KMCOMP">KM Compressor</option>
+      </select>
+    </div>
+
+    <div id="resourceDescContainer" class="form-group" style="display: none;">
+      <h4><label for="resourceDesc">Resource Description : </label></h4>
+      <select class="form-control" id="resourceDesc" name="resourceDesc" onchange="handleResourceDescChange()">
+        <option value="">Select Resource Description</option>
+      </select>
+    </div>
+
+    <div id="resourceDetails" class="resource-detail">
+      <h4>Resource Details :</h4>
+      <ul>
+        <li><h6 style="font-size: 7;"><p>Resource Code    : <span id="resourceCode"></span></p></h6></li>
+           <li><h6 style="font-size: 7;"><p>Specification : <span id="resourceSpecification"></span></p></h6></li>
+           <li><h6 style="font-size: 7;"><p>Max Hours of Booking : <span id="maxHoursOfBooking"></span></p></h6></li>
+           <li><h6 style="font-size: 7;"><p>Per Hour Rate : <span id="perHourRate"></span></p></h6></li>
+        </ul>
+        <ul>
+          <li><h6 style="font-size: 7;"><p>Utilization : <span id="utilization"></span></p></h6></li>
+         <li><h6 style="font-size: 7;"><p>Criticality  : <span id="criticality"></span></p></h6></li>
+           <li><h6 style="font-size: 7;"><p>Status     : <span id="status"></span></p></h6></li>
+        </ul>
+    </div>
+
+    <div>
+      <h4><label for="department">Department :</label></h4>
+      <select class="form-control" id="department" name="department">
+        <option value="">Select department</option>
+        <option value="BF">Blast Furnace</option>
+        <option value="CP">Coke Plant</option>
+        <option value="PP">Pellet Plant</option>
+        <option value="CRM">CRM</option>
+        <option value="SMS">Steel Melting</option>
+      </select>
+    </div>
+    <br>
+    <h5><p>Book from : <input type="datetime-local" class="form-control" id="bookFrom"></p></h5>
+    <h5><p>Book till : <input type="datetime-local" class="form-control" id="bookTill"></p></h5>
+    <h5><p>Entered By : <input type="text" class="form-control" id="enteredBy"></p></h5>
+    <h5><p>Entered On Date : <input type="datetime-local" class="form-control" id="enteredOnDate"></p></h5>
+    <button class="btn btn-info" onclick="checkAvailability()">Check Availability</button>
+    <button class="btn btn-success" onclick="bookResource()">Book Resource</button>
+  </div>
+
+  <script>
+    const groupedResources = {
+      "COMP": [
+        {"RESOURCE_DESC": "ELGI COMPRESSOR-220", "RESOURCE_CODE": 10056, "RES_SPECIFICATION": "CAPACITY-400,BOOM LENGTH ,RADIUS..", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": 48.0, "UTILIZATION": 85, "CRITICALITY": "High"},
+        {"RESOURCE_DESC": "EMS AIR COMPRESSOR NO - 01", "RESOURCE_CODE": 10001, "RES_SPECIFICATION": "CAPACITY - 400 CFM", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": 48.0, "UTILIZATION": 75, "CRITICALITY": "Medium"},
+        {"RESOURCE_DESC": "EMS AIR COMPRESSOR NO - 15", "RESOURCE_CODE": 10076, "RES_SPECIFICATION": "CAPACITY - 450 CFM", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": 48.0, "UTILIZATION": 95, "CRITICALITY": "High"},
+        {"RESOURCE_DESC": "EMS AIR COMPRESSOR NO - 16", "RESOURCE_CODE": 10077, "RES_SPECIFICATION": "CAPACITY - 450 CFM", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": 48.0, "UTILIZATION": 80, "CRITICALITY": "Medium"},
+        {"RESOURCE_DESC": "EMS AIR COMPRESSOR NO - 17", "RESOURCE_CODE": 10169, "RES_SPECIFICATION": "CAPACITY - 450 CFM, MAX WORK PRESS-12KG/CM2", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": 48.0, "UTILIZATION": 70, "CRITICALITY": "Medium"},
+        {"RESOURCE_DESC": "EMS AIR COMPRESSOR NO - 18", "RESOURCE_CODE": 10170, "RES_SPECIFICATION": "CAPACITY - 450 CFM, MAX WORK PRESS-12KG/CM2", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": 48.0, "UTILIZATION": 60, "CRITICALITY": "Medium"},
+        {"RESOURCE_DESC": "EMS AIR COMPRESSOR NO - 19", "RESOURCE_CODE": 10015, "RES_SPECIFICATION": "CAPACITY - 450 CFM", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": 48.0, "UTILIZATION": 100, "CRITICALITY": "High"},
+        {"RESOURCE_DESC": "EMS AIR COMPRESSOR NO - 20", "RESOURCE_CODE": 10172, "RES_SPECIFICATION": "CAPACITY - 450 CFM, MAX WORK PRESS-12KG/CM2", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": 48.0, "UTILIZATION": 85, "CRITICALITY": "Low"},
+        {"RESOURCE_DESC": "EMS AIR COMPRESSOR NO - 21", "RESOURCE_CODE": 10173, "RES_SPECIFICATION": "CAPACITY - 450 CFM, MAX WORK PRESS-12KG/CM2", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": 48.0, "UTILIZATION": 90, "CRITICALITY": "Medium"},
+        {"RESOURCE_DESC": "EMS AIR COMPRESSOR NO - 22", "RESOURCE_CODE": 10174, "RES_SPECIFICATION": "CAPACITY - 450 CFM, MAX WORK PRESS-12KG/CM2", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": 48.0, "UTILIZATION": 95, "CRITICALITY": "High"}
+      ],
+      "DMP": [
+        {"RESOURCE_DESC": "DUMPER", "RESOURCE_CODE": 10071, "RES_SPECIFICATION": "DUMPER", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": null, "UTILIZATION": 50, "CRITICALITY": "Medium"}
+      ],
+      "DSLG": [
+        {"RESOURCE_DESC": "DG # 1", "RESOURCE_CODE": 10017, "RES_SPECIFICATION": "CAPACITY - 400 AMP", "PER_HOUR_RATE": 1000.0, "MAX_HR_OF_BOOKING": 72.0, "UTILIZATION": 75, "CRITICALITY": "Medium"},
+        {"RESOURCE_DESC": "DG # 10", "RESOURCE_CODE": 10160, "RES_SPECIFICATION": "CAPACITY - 400 AMPS", "PER_HOUR_RATE": 1000.0, "MAX_HR_OF_BOOKING": 72.0, "UTILIZATION": 85, "CRITICALITY": "High"},
+        {"RESOURCE_DESC": "DG # 11", "RESOURCE_CODE": 10161, "RES_SPECIFICATION": "CAPACITY - 400 AMPS", "PER_HOUR_RATE": 1000.0, "MAX_HR_OF_BOOKING": 72.0, "UTILIZATION": 65, "CRITICALITY": "Medium"},
+        {"RESOURCE_DESC": "DG # 12", "RESOURCE_CODE": 10162, "RES_SPECIFICATION": "CAPACITY - 400 AMPS", "PER_HOUR_RATE": 1000.0, "MAX_HR_OF_BOOKING": 72.0, "UTILIZATION": 95, "CRITICALITY": "High"},
+        {"RESOURCE_DESC": "DG # 13", "RESOURCE_CODE": 10163, "RES_SPECIFICATION": "CAPACITY - 400 AMPS", "PER_HOUR_RATE": 1000.0, "MAX_HR_OF_BOOKING": 72.0, "UTILIZATION": 55, "CRITICALITY": "Low"},
+        {"RESOURCE_DESC": "DG # 2", "RESOURCE_CODE": 10018, "RES_SPECIFICATION": "CAPACITY - 400 AMP", "PER_HOUR_RATE": 1000.0, "MAX_HR_OF_BOOKING": 72.0, "UTILIZATION": 75, "CRITICALITY": "Medium"},
+        {"RESOURCE_DESC": "DG # 3", "RESOURCE_CODE": 10019, "RES_SPECIFICATION": "CAPACITY - 400 AMP", "PER_HOUR_RATE": 1000.0, "MAX_HR_OF_BOOKING": 72.0, "UTILIZATION": 80, "CRITICALITY": "Medium"},
+        {"RESOURCE_DESC": "DG # 4", "RESOURCE_CODE": 10020, "RES_SPECIFICATION": "CAPACITY - 400 AMP", "PER_HOUR_RATE": 1000.0, "MAX_HR_OF_BOOKING": 72.0, "UTILIZATION": 85, "CRITICALITY": "High"},
+        {"RESOURCE_DESC": "DG # 5", "RESOURCE_CODE": 10157, "RES_SPECIFICATION": "CAPACITY - 400 AMP", "PER_HOUR_RATE": 1000.0, "MAX_HR_OF_BOOKING": 72.0, "UTILIZATION": 90, "CRITICALITY": "High"},
+        {"RESOURCE_DESC": "DG # 6", "RESOURCE_CODE": 10158, "RES_SPECIFICATION": "CAPACITY - 400 AMP", "PER_HOUR_RATE": 1000.0, "MAX_HR_OF_BOOKING": 72.0, "UTILIZATION": 95, "CRITICALITY": "High"},
+        {"RESOURCE_DESC": "DG # 7", "RESOURCE_CODE": 10159, "RES_SPECIFICATION": "CAPACITY - 400 AMP", "PER_HOUR_RATE": 1000.0, "MAX_HR_OF_BOOKING": 72.0, "UTILIZATION": 65, "CRITICALITY": "Low"},
+        {"RESOURCE_DESC": "DG # 8", "RESOURCE_CODE": 10164, "RES_SPECIFICATION": "CAPACITY - 400 AMP", "PER_HOUR_RATE": 1000.0, "MAX_HR_OF_BOOKING": 72.0, "UTILIZATION": 75, "CRITICALITY": "Medium"},
+        {"RESOURCE_DESC": "DG # 9", "RESOURCE_CODE": 10165, "RES_SPECIFICATION": "CAPACITY - 400 AMP", "PER_HOUR_RATE": 1000.0, "MAX_HR_OF_BOOKING": 72.0, "UTILIZATION": 60, "CRITICALITY": "Medium"}
+      ],
+      "FLTT": [
+        {"RESOURCE_DESC": "FLAT TRAILER # 1", "RESOURCE_CODE": 10178, "RES_SPECIFICATION": "CAPACITY-30 TON", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": 48.0, "UTILIZATION": 70, "CRITICALITY": "Medium"},
+        {"RESOURCE_DESC": "FLAT TRAILER # 2", "RESOURCE_CODE": 10179, "RES_SPECIFICATION": "CAPACITY-40 TON", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": 48.0, "UTILIZATION": 60, "CRITICALITY": "Medium"},
+        {"RESOURCE_DESC": "FLAT TRAILER # 3", "RESOURCE_CODE": 10180, "RES_SPECIFICATION": "CAPACITY-30 TON", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": 48.0, "UTILIZATION": 65, "CRITICALITY": "Medium"},
+        {"RESOURCE_DESC": "FLAT TRAILER # 4", "RESOURCE_CODE": 10181, "RES_SPECIFICATION": "CAPACITY-40 TON", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": 48.0, "UTILIZATION": 85, "CRITICALITY": "High"},
+        {"RESOURCE_DESC": "FLAT TRAILER # 5", "RESOURCE_CODE": 10182, "RES_SPECIFICATION": "CAPACITY-30 TON", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": 48.0, "UTILIZATION": 55, "CRITICALITY": "Low"}
+      ],
+      "KMCOMP": [
+        {"RESOURCE_DESC": "KM COMPRESSOR", "RESOURCE_CODE": 10050, "RES_SPECIFICATION": "CAPACITY-400 CFM,BOOM LENGTH ,RADIUS..", "PER_HOUR_RATE": 500.0, "MAX_HR_OF_BOOKING": 48.0, "UTILIZATION": 80, "CRITICALITY": "High"}
+      ]
+    };
+
+    function handleResourceTypeChange() {
+      const resourceType = document.getElementById('resourceType').value;
+      const resourceDescSelect = document.getElementById('resourceDesc');
+      resourceDescSelect.innerHTML = '<option value="">Select Resource Description</option>';
+      if (resourceType) {
+        const resources = groupedResources[resourceType] || [];
+        resources.forEach(resource => {
+          const option = document.createElement('option');
+          option.value = resource.RESOURCE_CODE;
+          option.text = resource.RESOURCE_DESC;
+          resourceDescSelect.appendChild(option);
+        });
+        document.getElementById('resourceDescContainer').style.display = 'block';
+      } else {
+        document.getElementById('resourceDescContainer').style.display = 'none';
+        clearResourceDetails();
+      }
+    }
+
+    function handleResourceDescChange() {
+      const resourceCode = document.getElementById('resourceDesc').value;
+      const resourceType = document.getElementById('resourceType').value;
+      if (resourceCode) {
+        const resource = (groupedResources[resourceType] || []).find(r => r.RESOURCE_CODE == resourceCode);
+        if (resource) {
+          document.getElementById('resourceCode').textContent = resource.RESOURCE_CODE;
+          document.getElementById('resourceSpecification').textContent = resource.RES_SPECIFICATION;
+          document.getElementById('maxHoursOfBooking').textContent = resource.MAX_HR_OF_BOOKING;
+          document.getElementById('perHourRate').textContent = resource.PER_HOUR_RATE;
+          document.getElementById('utilization').textContent = resource.UTILIZATION + '%';
+          document.getElementById('criticality').textContent = resource.CRITICALITY;
+          document.getElementById('status').textContent = resource.UTILIZATION >= 80 ? 'Unavailable' : 'Available';
+        }
+      } else {
+        clearResourceDetails();
+      }
+    }
+
+    function clearResourceDetails() {
+      document.getElementById('resourceCode').textContent = '';
+      document.getElementById('resourceSpecification').textContent = '';
+      document.getElementById('maxHoursOfBooking').textContent = '';
+      document.getElementById('perHourRate').textContent = '';
+      document.getElementById('utilization').textContent = '';
+      document.getElementById('criticality').textContent = '';
+      document.getElementById('status').textContent = '';
+    }
+
+    function checkAvailability() {
+      const resourceCode = document.getElementById('resourceDesc').value;
+      const bookFrom = document.getElementById('bookFrom').value;
+      const bookTill = document.getElementById('bookTill').value;
+      if (!resourceCode || !bookFrom || !bookTill) {
+        alert('Please select a resource and specify the booking period.');
+        return;
+      }
+      const resourceType = document.getElementById('resourceType').value;
+      const resource = (groupedResources[resourceType] || []).find(r => r.RESOURCE_CODE == resourceCode);
+      if (resource.UTILIZATION >= 80) {
+        alert('The selected resource is currently unavailable for the specified period.');
+      } else {
+        alert('The selected resource is available for booking.');
+      }
+    }
+
+    function bookResource() {
+      const resourceCode = document.getElementById('resourceDesc').value;
+      const bookFrom = document.getElementById('bookFrom').value;
+      const bookTill = document.getElementById('bookTill').value;
+      const enteredBy = document.getElementById('enteredBy').value;
+      const enteredOnDate = document.getElementById('enteredOnDate').value;
+      const department = document.getElementById('department').value;
+      if (!resourceCode || !bookFrom || !bookTill || !enteredBy || !enteredOnDate || !department) {
+        alert('Please fill in all fields before booking the resource.');
+        return;
+      }
+      alert('Resource booked successfully.');
+    }
+  </script>
+</body>
+</html>
