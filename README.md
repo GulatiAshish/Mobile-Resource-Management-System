@@ -1,5 +1,4 @@
 # Mobile-Resource-Management-System
-
 What is Mobile resource management? 
 Mobile Resource Management (MRM) within a company premises, specifically for leasing or using resources like pumps, forklifts, compressors, etc., for a specified time, involves using technology to efficiently manage and allocate these resources. This type of MRM system helps streamline operations, optimize resource usage, and ensure that resources are available when needed.
 
