@@ -13,7 +13,6 @@ grouped_resources = df.groupby('RESOURCE_GROUP').apply(
     lambda x: x[['RESOURCE_DESC', 'RESOURCE_CODE', 'RES_SPECIFICATION', 'PER_HOUR_RATE', 'MAX_HR_OF_BOOKING']].to_dict('records')
 ).to_dict()
 
-# Convert to JSON for embedding in HTML
 resource_groups_json = json.dumps(resource_groups)
 grouped_resources_json = json.dumps(grouped_resources)
 
